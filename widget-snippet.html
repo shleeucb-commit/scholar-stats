@@ -1,9 +1,9 @@
 <!-- ============================================================
-  Google Scholar Citation / h-index 위젯 (한 줄, 컴팩트 버전)
+  Google Scholar Citation / h-index 위젯 (전부 한 줄)
   ============================================================ -->
 
 <div id="scholar-stats" class="scholar-stats">
-  <span class="scholar-label">Google Scholar</span>
+  <a id="scholar-label-link" class="scholar-label" href="#" target="_blank" rel="noopener">Google Scholar</a>
   <span class="scholar-sep">|</span>
   <span class="scholar-stat">
     <span class="scholar-stat-value" id="scholar-citations">–</span>
@@ -17,6 +17,7 @@
     <span class="scholar-stat-value" id="scholar-i10index">–</span>
     <span class="scholar-stat-label">i10-index</span>
   </span>
+  <span class="scholar-sep">|</span>
   <span class="scholar-updated" id="scholar-updated"></span>
 </div>
 
@@ -24,14 +25,20 @@
   .scholar-stats {
     display: flex;
     align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0.6rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0.5rem;
     font-family: inherit;
     font-size: 0.95rem;
+    white-space: nowrap;
   }
   .scholar-label {
     font-weight: 700;
     color: #1a1a1a;
+    text-decoration: none;
+  }
+  .scholar-label:hover {
+    text-decoration: underline;
   }
   .scholar-sep {
     color: #bbb;
@@ -42,7 +49,7 @@
   .scholar-stat-value {
     font-weight: 700;
     color: #1a1a1a;
-    margin-right: 0.25rem;
+    margin-right: 0.2rem;
   }
   .scholar-stat-label {
     color: #666;
@@ -50,8 +57,7 @@
   }
   .scholar-updated {
     color: #999;
-    font-size: 0.8em;
-    margin-left: 0.4rem;
+    font-size: 0.85em;
   }
 </style>
 
@@ -70,10 +76,14 @@
         document.getElementById("scholar-i10index").textContent =
           data.i10_index_all ?? "–";
 
+        if (data.profile_url) {
+          document.getElementById("scholar-label-link").href = data.profile_url;
+        }
+
         if (data.updated_at) {
           const d = new Date(data.updated_at);
           document.getElementById("scholar-updated").textContent =
-            "(Updated " + d.toLocaleDateString("ko-KR") + ")";
+            "Updated " + d.toLocaleDateString("ko-KR");
         }
       })
       .catch((err) => {
