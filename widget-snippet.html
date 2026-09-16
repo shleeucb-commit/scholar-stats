@@ -1,54 +1,57 @@
 <!-- ============================================================
-  Google Scholar Citation / h-index 위젯
-  홈페이지 HTML의 원하는 위치에 이 블록을 그대로 붙여넣으세요.
+  Google Scholar Citation / h-index 위젯 (한 줄, 컴팩트 버전)
   ============================================================ -->
 
 <div id="scholar-stats" class="scholar-stats">
-  <div class="scholar-stat">
+  <span class="scholar-label">Google Scholar</span>
+  <span class="scholar-sep">|</span>
+  <span class="scholar-stat">
     <span class="scholar-stat-value" id="scholar-citations">–</span>
     <span class="scholar-stat-label">Citations</span>
-  </div>
-  <div class="scholar-stat">
+  </span>
+  <span class="scholar-stat">
     <span class="scholar-stat-value" id="scholar-hindex">–</span>
     <span class="scholar-stat-label">h-index</span>
-  </div>
-  <div class="scholar-stat">
+  </span>
+  <span class="scholar-stat">
     <span class="scholar-stat-value" id="scholar-i10index">–</span>
     <span class="scholar-stat-label">i10-index</span>
-  </div>
-  <div class="scholar-updated" id="scholar-updated"></div>
+  </span>
+  <span class="scholar-updated" id="scholar-updated"></span>
 </div>
 
 <style>
   .scholar-stats {
     display: flex;
-    gap: 2rem;
     align-items: baseline;
     flex-wrap: wrap;
+    gap: 0.6rem;
     font-family: inherit;
+    font-size: 0.95rem;
   }
-  .scholar-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 80px;
-  }
-  .scholar-stat-value {
-    font-size: 1.8rem;
+  .scholar-label {
     font-weight: 700;
     color: #1a1a1a;
   }
+  .scholar-sep {
+    color: #bbb;
+  }
+  .scholar-stat {
+    white-space: nowrap;
+  }
+  .scholar-stat-value {
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-right: 0.25rem;
+  }
   .scholar-stat-label {
-    font-size: 0.8rem;
     color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
+    font-size: 0.85em;
   }
   .scholar-updated {
-    width: 100%;
-    font-size: 0.7rem;
     color: #999;
-    margin-top: 0.25rem;
+    font-size: 0.8em;
+    margin-left: 0.4rem;
   }
 </style>
 
@@ -70,7 +73,7 @@
         if (data.updated_at) {
           const d = new Date(data.updated_at);
           document.getElementById("scholar-updated").textContent =
-            "Last updated: " + d.toLocaleDateString("ko-KR");
+            "(Updated " + d.toLocaleDateString("ko-KR") + ")";
         }
       })
       .catch((err) => {
