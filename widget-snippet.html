@@ -1,5 +1,5 @@
 <!-- ============================================================
-  Google Scholar Citation / h-index 위젯 (전부 한 줄)
+  Google Scholar Citation / h-index 위젯 (모바일 높이 보정 버전)
   ============================================================ -->
 
 <div id="scholar-stats" class="scholar-stats">
@@ -22,6 +22,10 @@
 </div>
 
 <style>
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
   .scholar-stats {
     display: flex;
     align-items: baseline;
@@ -31,6 +35,9 @@
     font-family: inherit;
     font-size: 0.95rem;
     white-space: nowrap;
+    min-height: 32px;   /* 모바일에서 블록이 눌려도 최소 높이 확보 */
+    padding: 6px 2px;
+    box-sizing: border-box;
   }
   .scholar-label {
     font-weight: 700;
