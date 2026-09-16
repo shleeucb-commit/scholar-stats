@@ -54,10 +54,8 @@
 
 <script>
   (function () {
-    // ★ 아래 URL을 본인의 GitHub username / repo 이름으로 바꿔주세요.
-    // 예: https://raw.githubusercontent.com/{username}/{repo}/main/citations.json
     const DATA_URL =
-      "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/main/citations.json";
+      "https://raw.githubusercontent.com/shleeucb-commit/scholar-stats/main/citations.json";
 
     fetch(DATA_URL, { cache: "no-store" })
       .then((res) => res.json())
