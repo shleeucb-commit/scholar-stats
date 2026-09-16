@@ -25,6 +25,8 @@ jobs:
         run: pip install requests
 
       - name: Run scraper
+        env:
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
         run: python scrape_scholar.py
 
       - name: Commit updated citations.json
