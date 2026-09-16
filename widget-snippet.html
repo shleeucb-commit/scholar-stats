@@ -1,0 +1,82 @@
+<!-- ============================================================
+  Google Scholar Citation / h-index 위젯
+  홈페이지 HTML의 원하는 위치에 이 블록을 그대로 붙여넣으세요.
+  ============================================================ -->
+
+<div id="scholar-stats" class="scholar-stats">
+  <div class="scholar-stat">
+    <span class="scholar-stat-value" id="scholar-citations">–</span>
+    <span class="scholar-stat-label">Citations</span>
+  </div>
+  <div class="scholar-stat">
+    <span class="scholar-stat-value" id="scholar-hindex">–</span>
+    <span class="scholar-stat-label">h-index</span>
+  </div>
+  <div class="scholar-stat">
+    <span class="scholar-stat-value" id="scholar-i10index">–</span>
+    <span class="scholar-stat-label">i10-index</span>
+  </div>
+  <div class="scholar-updated" id="scholar-updated"></div>
+</div>
+
+<style>
+  .scholar-stats {
+    display: flex;
+    gap: 2rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+    font-family: inherit;
+  }
+  .scholar-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+  }
+  .scholar-stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  .scholar-stat-label {
+    font-size: 0.8rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .scholar-updated {
+    width: 100%;
+    font-size: 0.7rem;
+    color: #999;
+    margin-top: 0.25rem;
+  }
+</style>
+
+<script>
+  (function () {
+    // ★ 아래 URL을 본인의 GitHub username / repo 이름으로 바꿔주세요.
+    // 예: https://raw.githubusercontent.com/{username}/{repo}/main/citations.json
+    const DATA_URL =
+      "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/main/citations.json";
+
+    fetch(DATA_URL, { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        document.getElementById("scholar-citations").textContent =
+          data.citations_all ?? "–";
+        document.getElementById("scholar-hindex").textContent =
+          data.h_index_all ?? "–";
+        document.getElementById("scholar-i10index").textContent =
+          data.i10_index_all ?? "–";
+
+        if (data.updated_at) {
+          const d = new Date(data.updated_at);
+          document.getElementById("scholar-updated").textContent =
+            "Last updated: " + d.toLocaleDateString("ko-KR");
+        }
+      })
+      .catch((err) => {
+        console.error("Scholar stats load failed:", err);
+      });
+  })();
+</script>
