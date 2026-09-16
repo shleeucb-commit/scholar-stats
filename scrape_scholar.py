@@ -1,83 +1,87 @@
 #!/usr/bin/env python3
 """
-Google Scholar 프로필에서 citation 수 / h-index / i10-index를 가져와
-citations.json 파일로 저장하는 스크립트.
+SerpApi(Google Scholar Author API)를 이용해 citation 수 / h-index / i10-index를
+가져와 citations.json 파일로 저장하는 스크립트.
 
-주의:
-- Google Scholar는 robots.txt로 자동화된 접근을 제한하고 있습니다.
-  이 스크립트는 GitHub Actions에서 "하루 1회" 정도의 낮은 빈도로
-  실행하는 것을 전제로 만들어졌습니다. 너무 자주 실행하면 일시적으로
-  차단(429 / CAPTCHA)될 수 있습니다.
-- 개인 연구 성과를 본인 홈페이지에 표시하는 용도로만 사용하세요.
+필요한 환경변수:
+- SERPAPI_KEY : serpapi.com에서 발급받은 API 키
+  (GitHub 저장소 Settings > Secrets and variables > Actions 에 등록)
 """
 
 import json
-import re
+import os
 import sys
-import time
 from datetime import datetime, timezone
 
 import requests
 
 SCHOLAR_USER_ID = "8PT4DmgAAAAJ"
-URL = f"https://scholar.google.com/citations?user={SCHOLAR_USER_ID}&hl=en"
-
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-    ),
-    "Accept-Language": "en-US,en;q=0.9",
-}
+SERPAPI_KEY = os.environ.get("SERPAPI_KEY")
+API_URL = "https://serpapi.com/search.json"
 
 
-def fetch_html(url: str, retries: int = 3, backoff: float = 5.0) -> str:
-    last_err = None
-    for attempt in range(1, retries + 1):
-        try:
-            resp = requests.get(url, headers=HEADERS, timeout=20)
-            if resp.status_code == 200:
-                return resp.text
-            last_err = f"HTTP {resp.status_code}"
-        except requests.RequestException as e:
-            last_err = str(e)
-        print(f"[warn] attempt {attempt}/{retries} failed: {last_err}", file=sys.stderr)
-        time.sleep(backoff * attempt)
-    raise RuntimeError(f"Failed to fetch {url}: {last_err}")
-
-
-def parse_metrics(html: str) -> dict:
-    """
-    Google Scholar 프로필 페이지의 지표 테이블(id="gsc_rsb_st")을 파싱합니다.
-    테이블 구조: [Citations(All, Since5y), h-index(All, Since5y), i10-index(All, Since5y)]
-    각 값은 <td class="gsc_rsb_std">숫자</td> 형태로 나열되어 있습니다.
-    """
-    values = re.findall(r'<td class="gsc_rsb_std">(\d+)</td>', html)
-    if len(values) < 6:
+def fetch_author_data() -> dict:
+    if not SERPAPI_KEY:
         raise RuntimeError(
-            "지표 파싱 실패 - Google Scholar가 페이지 구조를 바꿨거나 "
-            "요청이 차단(CAPTCHA)되었을 수 있습니다."
+            "환경변수 SERPAPI_KEY가 설정되지 않았습니다. "
+            "GitHub 저장소 Secrets에 SERPAPI_KEY를 등록했는지 확인하세요."
         )
 
-    name_match = re.search(r'id="gsc_prf_in">([^<]+)</div>', html)
-    name = name_match.group(1) if name_match else None
+    params = {
+        "engine": "google_scholar_author",
+        "author_id": SCHOLAR_USER_ID,
+        "hl": "en",
+        "api_key": SERPAPI_KEY,
+    }
+
+    resp = requests.get(API_URL, params=params, timeout=30)
+    if resp.status_code != 200:
+        raise RuntimeError(f"SerpApi 요청 실패: HTTP {resp.status_code} - {resp.text[:300]}")
+
+    data = resp.json()
+    if "error" in data:
+        raise RuntimeError(f"SerpApi 오류: {data['error']}")
+
+    return data
+
+
+def parse_metrics(data: dict) -> dict:
+    author = data.get("author", {})
+    cited_by = data.get("cited_by", {})
+    table = cited_by.get("table", [])
+
+    def get_row(key: str) -> dict:
+        for row in table:
+            if key in row:
+                return row[key]
+        return {}
+
+    citations = get_row("citations")
+    h_index = get_row("h_index")
+    i10_index = get_row("i10_index")
+
+    if not citations and not h_index:
+        raise RuntimeError(
+            "SerpApi 응답에서 지표를 찾을 수 없습니다. "
+            "author_id가 올바른지, 응답 구조가 바뀌지 않았는지 확인하세요."
+        )
 
     return {
-        "name": name,
-        "citations_all": int(values[0]),
-        "citations_since_5y": int(values[1]),
-        "h_index_all": int(values[2]),
-        "h_index_since_5y": int(values[3]),
-        "i10_index_all": int(values[4]),
-        "i10_index_since_5y": int(values[5]),
-        "profile_url": URL,
+        "name": author.get("name"),
+        "citations_all": citations.get("all", 0),
+        "citations_since_5y": citations.get("since_2020", 0),
+        "h_index_all": h_index.get("all", 0),
+        "h_index_since_5y": h_index.get("since_2020", 0),
+        "i10_index_all": i10_index.get("all", 0),
+        "i10_index_since_5y": i10_index.get("since_2020", 0),
+        "profile_url": f"https://scholar.google.com/citations?user={SCHOLAR_USER_ID}&hl=en",
         "updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
 
 
 def main():
-    html = fetch_html(URL)
-    metrics = parse_metrics(html)
+    data = fetch_author_data()
+    metrics = parse_metrics(data)
 
     with open("citations.json", "w", encoding="utf-8") as f:
         json.dump(metrics, f, ensure_ascii=False, indent=2)
@@ -86,4 +90,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"[error] {e}", file=sys.stderr)
+        sys.exit(1)
