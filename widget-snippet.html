@@ -1,24 +1,26 @@
 <!-- ============================================================
-  Google Scholar Citation / h-index 위젯 (모바일 높이 보정 버전)
+  Google Scholar Citation / h-index 위젯
+  (Google Scholar 앞 2칸 들여쓰기 + Updated 날짜 다음 줄 표시)
   ============================================================ -->
 
-<div id="scholar-stats" class="scholar-stats">
-  <a id="scholar-label-link" class="scholar-label" href="#" target="_blank" rel="noopener">Google Scholar</a>
-  <span class="scholar-sep">|</span>
-  <span class="scholar-stat">
-    <span class="scholar-stat-value" id="scholar-citations">–</span>
-    <span class="scholar-stat-label">Citations</span>
-  </span>
-  <span class="scholar-stat">
-    <span class="scholar-stat-value" id="scholar-hindex">–</span>
-    <span class="scholar-stat-label">h-index</span>
-  </span>
-  <span class="scholar-stat">
-    <span class="scholar-stat-value" id="scholar-i10index">–</span>
-    <span class="scholar-stat-label">i10-index</span>
-  </span>
-  <span class="scholar-sep">|</span>
-  <span class="scholar-updated" id="scholar-updated"></span>
+<div id="scholar-widget" class="scholar-widget">
+  <div class="scholar-stats">
+    <a id="scholar-label-link" class="scholar-label" href="#" target="_blank" rel="noopener">&nbsp;&nbsp;Google Scholar</a>
+    <span class="scholar-sep">|</span>
+    <span class="scholar-stat">
+      <span class="scholar-stat-value" id="scholar-citations">–</span>
+      <span class="scholar-stat-label">Citations</span>
+    </span>
+    <span class="scholar-stat">
+      <span class="scholar-stat-value" id="scholar-hindex">–</span>
+      <span class="scholar-stat-label">h-index</span>
+    </span>
+    <span class="scholar-stat">
+      <span class="scholar-stat-value" id="scholar-i10index">–</span>
+      <span class="scholar-stat-label">i10-index</span>
+    </span>
+  </div>
+  <div class="scholar-updated" id="scholar-updated"></div>
 </div>
 
 <style>
@@ -26,17 +28,19 @@
     margin: 0;
     padding: 0;
   }
+  .scholar-widget {
+    font-family: inherit;
+  }
   .scholar-stats {
     display: flex;
     align-items: baseline;
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 0.5rem;
-    font-family: inherit;
     font-size: 0.95rem;
     white-space: nowrap;
     min-height: 32px;   /* 모바일에서 블록이 눌려도 최소 높이 확보 */
-    padding: 6px 2px;
+    padding: 6px 2px 0 2px;
     box-sizing: border-box;
   }
   .scholar-label {
@@ -65,6 +69,8 @@
   .scholar-updated {
     color: #999;
     font-size: 0.85em;
+    padding: 2px 2px 4px 2px;
+    box-sizing: border-box;
   }
 </style>
 
