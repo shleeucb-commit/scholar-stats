@@ -96,7 +96,7 @@
         if (data.updated_at) {
           const d = new Date(data.updated_at);
           document.getElementById("scholar-updated").textContent =
-            "Updated " + d.toLocaleDateString("ko-KR");
+            "  Updated " + d.toLocaleDateString("ko-KR");
         }
       })
       .catch((err) => {
